@@ -1,0 +1,110 @@
+name: 'Terraform'
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform:
+        description: 'Terraform Operation'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+        - plan
+        - apply
+        - destroy
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+      tags:
+        description: 'Test scenario tags'
+        required: false
+        type: boolean
+      environment:
+        description: 'Environment to run tests against'
+        default: 'production'
+        type: environment
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Create Config
+      uses: ajeffowens/jinja2-action@90dab3da2215932ea86d2875224f06bbd6798617
+      with:
+        template: provider.tf.j2
+        output_file: provider.tf
+        variables: |
+          terraform_state_bucket=${{ secrets.terraform_state_bucket }}
+          terraform_state_key=${{ secrets.terraform_state_key }}
+        
+    - name: AWS credentials OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.oidc_role }}
+        aws-region: us-west-2
+
+    - name: AWS credentials OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.aft_role }}
+        role-chaining: true
+        aws-region: us-west-2
+        
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Format
+      run: terraform fmt
+
+    - name: Terraform Plan
+      if: inputs.terraform == 'apply' || inputs.terraform == 'plan'
+      env:
+        TF_VAR_ct_management_account_id: "${{ secrets.ct_management_account_id }}"
+        TF_VAR_log_archive_account_id: "${{ secrets.log_archive_account_id }}"
+        TF_VAR_audit_account_id: "${{ secrets.audit_account_id }}"
+        TF_VAR_aft_management_account_id: "${{ secrets.aft_management_account_id }}"
+      run: terraform plan -input=false
+
+    - name: Terraform Apply
+      if: inputs.terraform == 'apply'
+      env:
+        TF_VAR_ct_management_account_id: "${{ secrets.ct_management_account_id }}"
+        TF_VAR_log_archive_account_id: "${{ secrets.log_archive_account_id }}"
+        TF_VAR_audit_account_id: "${{ secrets.audit_account_id }}"
+        TF_VAR_aft_management_account_id: "${{ secrets.aft_management_account_id }}"
+      run: terraform apply -auto-approve -input=false
+
+    - name: Terraform Destroy
+      if: inputs.terraform == 'destroy'
+      env:
+        TF_VAR_ct_management_account_id: "${{ secrets.ct_management_account_id }}"
+        TF_VAR_log_archive_account_id: "${{ secrets.log_archive_account_id }}"
+        TF_VAR_audit_account_id: "${{ secrets.audit_account_id }}"
+        TF_VAR_aft_management_account_id: "${{ secrets.aft_management_account_id }}"
+      run: terraform apply -destroy -auto-approve -input=false
