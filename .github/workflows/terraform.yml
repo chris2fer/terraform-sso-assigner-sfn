@@ -67,7 +67,7 @@ jobs:
     - name: AWS credentials OIDC
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ secrets.aft_role }}
+        role-to-assume: ${{ secrets.identity_center_role }}
         role-chaining: true
         aws-region: us-west-2
         
@@ -84,27 +84,12 @@ jobs:
 
     - name: Terraform Plan
       if: inputs.terraform == 'apply' || inputs.terraform == 'plan'
-      env:
-        TF_VAR_ct_management_account_id: "${{ secrets.ct_management_account_id }}"
-        TF_VAR_log_archive_account_id: "${{ secrets.log_archive_account_id }}"
-        TF_VAR_audit_account_id: "${{ secrets.audit_account_id }}"
-        TF_VAR_aft_management_account_id: "${{ secrets.aft_management_account_id }}"
       run: terraform plan -input=false
 
     - name: Terraform Apply
       if: inputs.terraform == 'apply'
-      env:
-        TF_VAR_ct_management_account_id: "${{ secrets.ct_management_account_id }}"
-        TF_VAR_log_archive_account_id: "${{ secrets.log_archive_account_id }}"
-        TF_VAR_audit_account_id: "${{ secrets.audit_account_id }}"
-        TF_VAR_aft_management_account_id: "${{ secrets.aft_management_account_id }}"
       run: terraform apply -auto-approve -input=false
 
     - name: Terraform Destroy
       if: inputs.terraform == 'destroy'
-      env:
-        TF_VAR_ct_management_account_id: "${{ secrets.ct_management_account_id }}"
-        TF_VAR_log_archive_account_id: "${{ secrets.log_archive_account_id }}"
-        TF_VAR_audit_account_id: "${{ secrets.audit_account_id }}"
-        TF_VAR_aft_management_account_id: "${{ secrets.aft_management_account_id }}"
       run: terraform apply -destroy -auto-approve -input=false
