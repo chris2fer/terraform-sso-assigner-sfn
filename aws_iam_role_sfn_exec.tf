@@ -6,7 +6,8 @@ variable iam_for_sfn_name {
 
 
 resource aws_iam_role iam_for_sfn {
-    name = var.iam_for_sfn_name
+    name  = var.iam_for_sfn_name
+    path  = "/app/"
     assume_role_policy = jsonencode({
       Version = "2012-10-17"
       Statement = [
