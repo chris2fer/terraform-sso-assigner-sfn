@@ -29,7 +29,11 @@ resource aws_iam_role iam_for_sfn {
       Version = "2012-10-17"
       Statement = [
         {
-          Action   = ["sso:*"]
+          Action   = [
+            "sso:*",
+            "organizations:List*",
+            "organizations:Get*",
+            ]
           Effect   = "Allow"
           Resource = "*"
         },
