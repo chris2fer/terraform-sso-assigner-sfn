@@ -17,56 +17,7 @@ resource "aws_sfn_state_machine" "main" {
     "Pass": {
       "Comment": "A Pass state passes its input to its output, without performing work. They can also generate static JSON output, or transform JSON input using filters and pass the transformed data to the next state. Pass states are useful when constructing and debugging state machines.",
       "Type": "Pass",
-      "Next": "RequestRouter"
-    },
-    "RequestRouter": {
-      "Comment": "A Choice state adds branching logic to a state machine. Choice rules can implement many different comparison operators, and rules can be combined using And, Or, and Not",
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.AuditMode",
-          "BooleanEquals": true,
-          "Next": "Yes"
-        },
-        {
-          "Variable": "$.AuditMode",
-          "BooleanEquals": false,
-          "Next": "No"
-        }
-      ],
-      "Default": "Yes"
-    },
-    "Yes": {
-      "Type": "Pass",
-      "Next": "Get-Timestamp"
-    },
-    "Get-Timestamp": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "FunctionName": "arn:aws:lambda:us-east-1:123412341234:function:Stepfunction-Helpers-Timestamp-Converter:$LATEST",
-        "Payload": {
-          "ts.$": "$$.State.EnteredTime"
-        }
-      },
-      "Retry": [
-        {
-          "ErrorEquals": [
-            "Lambda.ServiceException",
-            "Lambda.AWSLambdaException",
-            "Lambda.SdkClientException",
-            "Lambda.TooManyRequestsException"
-          ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
-          "BackoffRate": 2
-        }
-      ],
-      "Next": "ListInstances",
-      "ResultSelector": {
-        "AccessGrantedAt.$": "$.Payload"
-      },
-      "ResultPath": "$.Logging"
+      "Next": "ListInstances"
     },
     "ListInstances": {
       "Type": "Task",
