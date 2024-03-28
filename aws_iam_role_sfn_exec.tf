@@ -21,4 +21,20 @@ resource aws_iam_role iam_for_sfn {
         },
       ]
   })
+
+  inline_policy {
+    name = "inline_policy"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["sso:*"]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+      ]
+    })
+  }
 }
+
