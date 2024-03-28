@@ -16,7 +16,7 @@ resource aws_iam_role iam_for_sfn {
           Effect = "Allow"
           Sid    = ""
           Principal = {
-            Service = "stepfunctions.amazonaws.com"
+            Service = "states.amazonaws.com"
           }
         },
       ]
