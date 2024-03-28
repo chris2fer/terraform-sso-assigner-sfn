@@ -7,8 +7,9 @@ variable sfn_name {
 
 
 resource "aws_sfn_state_machine" "main" {
-  name     = var.sfn_name
-  role_arn = aws_iam_role.iam_for_sfn.arn
+  name      = var.sfn_name
+  type      = "STANDARD"
+  role_arn  = aws_iam_role.iam_for_sfn.arn
 
   definition = <<EOF
 {
