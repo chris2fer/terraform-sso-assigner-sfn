@@ -120,10 +120,6 @@ resource "aws_sfn_state_machine" "main" {
       },
       "Resource": "arn:aws:states:::aws-sdk:ssoadmin:deleteAccountAssignment"
     },
-    "No": {
-      "Type": "Fail",
-      "Cause": "Not Hello World"
-    },
     "Success": {
       "Type": "Succeed"
     }
