@@ -18,8 +18,8 @@ resource "aws_iam_role" "account_resolver_lambda" {
 
 data "archive_file" "account_resolver_lambda" {
   type        = "zip"
-  source_file = "account_resolver.py"
-  output_path = "account_resolver_payload.zip"
+  source_file = "./src/account_resolver.py"
+  output_path = "./src/account_resolver_payload.zip"
 }
 
 resource "aws_lambda_function" "account_resolver" {
