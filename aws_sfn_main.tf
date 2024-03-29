@@ -22,7 +22,7 @@ resource "aws_sfn_state_machine" "main" {
     },
     "ListInstances": {
       "Type": "Task",
-      "Next": "GetUserId",
+      "Next": "ResolveAccountID",
       "Parameters": {},
       "Resource": "arn:aws:states:::aws-sdk:ssoadmin:listInstances",
       "ResultSelector": {
@@ -30,23 +30,51 @@ resource "aws_sfn_state_machine" "main" {
       },
       "ResultPath": "$.InstancesResult"
     },
-    "GetUserId": {
+    "ResolveAccountID": {
       "Type": "Task",
-      "Next": "Wait 3 sec",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
       "Parameters": {
-        "AlternateIdentifier": {
-          "UniqueAttribute": {
-            "AttributePath": "emails.value",
-            "AttributeValue.$": "$.IDP_Email"
-          }
-        },
-        "IdentityStoreId": "d-xxxxxx"
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:us-east-1:078673572457:function:SSO-Assigner-ResolveAccount:$LATEST"
       },
-      "Resource": "arn:aws:states:::aws-sdk:identitystore:getUserId",
-      "ResultSelector": {
-        "UserId.$": "$.UserId"
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "ResolvePermissionSet"
+    },
+    "ResolvePermissionSet": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:us-east-1:078673572457:function:SSO-Assigner-ResolvePSet:$LATEST"
       },
-      "ResultPath": "$.GetUserIdResult"
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Wait 3 sec"
     },
     "Wait 3 sec": {
       "Comment": "A Wait state delays the state machine from continuing for a specified time.",

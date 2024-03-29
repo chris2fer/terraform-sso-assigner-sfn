@@ -32,8 +32,9 @@ resource aws_iam_role iam_for_sfn {
           Action   = [
             "sso:*",
             "organizations:List*",
-            "organizations:Get*",
-            ]
+            "organizations:Describe*",
+            "lambda:InvokeFunction",
+          ]
           Effect   = "Allow"
           Resource = "*"
         },
@@ -41,4 +42,3 @@ resource aws_iam_role iam_for_sfn {
     })
   }
 }
-
