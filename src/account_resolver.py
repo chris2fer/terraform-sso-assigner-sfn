@@ -21,7 +21,7 @@ def resolve_account_tag(tag):
         print(a)
         print(f"Checking Account named {a['Name']}")
         resp = org.list_tags_for_resource(
-            ResourceId=a['Arn']
+            ResourceId=a['Id']
         )
         for t in resp['Tags']:
             print(t)
@@ -41,7 +41,7 @@ def resolve_account_tag(tag):
             
             print(f"Checking Account named {a['Name']}")
             resp = org.list_tags_for_resource(
-                ResourceId=a['Arn'])
+                ResourceId=a['Id'])
             for t in resp['Tags']:
                 print(t)
                 if t == tag:
