@@ -48,7 +48,7 @@ def resolve_account_tag(tag):
 
 
 def lambda_handler(event, context):
-    tag = event['PVFXID']
+    tag = event['pvfx_tag']
 
     print(f'Searching Org Accounts for the {tag["Key"]} with value {tag["Value"]}')
 
