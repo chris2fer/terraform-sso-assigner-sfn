@@ -59,7 +59,7 @@ resource "aws_sfn_state_machine" "main" {
       "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
-        "FunctionName": "arn:aws:lambda:us-east-1:078673572457:function:SSO-Assigner-ResolvePSet:$LATEST"
+        "FunctionName": "${aws_lambda_function.pset_resolver.arn}"
       },
       "Retry": [
         {
