@@ -13,7 +13,7 @@ resource "aws_iam_role" "pset_resolver_lambda" {
       Statement = [
         {
           Action   = [
-            "sso:*"
+            "sso:*",
             "logs:*",
             "cloudwatch:*"
           ]
