@@ -18,11 +18,24 @@ resource "aws_sfn_state_machine" "main" {
     "Pass": {
       "Comment": "A Pass state passes its input to its output, without performing work. They can also generate static JSON output, or transform JSON input using filters and pass the transformed data to the next state. Pass states are useful when constructing and debugging state machines.",
       "Type": "Pass",
-      "Next": "ListInstances"
+      "Next": "Pass (1)",
+      "InputPath": "$.detail.requestParameters",
+      "Parameters": {
+        "groupName.$": "$.displayName",
+        "splitter": "_"
+      }
+    },
+    "Pass (1)": {
+      "Type": "Pass",
+      "Next": "ListInstances",
+      "Parameters": {
+        "pvf_tag.$": "States.Format('\\{\"Key\": \"PVF_ID\", \"Value\": \"{}\"\\}',States.ArrayGetItem(States.StringSplit($.groupName, $.splitter),2))",
+        "pvfx_tag.$": "States.Format('\\{\"Key\": \"PVFXID\", \"Value\": \"{}\"\\}',States.ArrayGetItem(States.StringSplit($.groupName, $.splitter),4))"
+      }
     },
     "ListInstances": {
       "Type": "Task",
-      "Next": "ResolveAccountID",
+      "Next": "ResolvePermissionSet",
       "Parameters": {},
       "Resource": "arn:aws:states:::aws-sdk:ssoadmin:listInstances",
       "ResultSelector": {
@@ -30,13 +43,13 @@ resource "aws_sfn_state_machine" "main" {
       },
       "ResultPath": "$.InstancesResult"
     },
-    "ResolveAccountID": {
+    "ResolvePermissionSet": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
-        "FunctionName": "${aws_lambda_function.account_resolver.arn}"
+        "FunctionName": "arn:aws:lambda:us-east-1:078673572457:function:SSO-Assigner-PSet-Resolver"
       },
       "Retry": [
         {
@@ -51,15 +64,15 @@ resource "aws_sfn_state_machine" "main" {
           "BackoffRate": 2
         }
       ],
-      "Next": "ResolvePermissionSet"
+      "Next": "ResolveAccountID"
     },
-    "ResolvePermissionSet": {
+    "ResolveAccountID": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
       "Parameters": {
         "Payload.$": "$",
-        "FunctionName": "${aws_lambda_function.pset_resolver.arn}"
+        "FunctionName": "arn:aws:lambda:us-east-1:078673572457:function:SSO-Assigner-Account-Resolver"
       },
       "Retry": [
         {
@@ -80,21 +93,7 @@ resource "aws_sfn_state_machine" "main" {
       "Comment": "A Wait state delays the state machine from continuing for a specified time.",
       "Type": "Wait",
       "Seconds": 3,
-      "Next": "CreateAccountAssignment"
-    },
-    "CreateAccountAssignment": {
-      "Type": "Task",
-      "Next": "CreateLogStream",
-      "Parameters": {
-        "InstanceArn.$": "$.InstancesResult.InstanceArn",
-        "PermissionSetArn.$": "$.PermissionSetArn",
-        "PrincipalId.$": "$.GetUserIdResult.UserId",
-        "PrincipalType": "USER",
-        "TargetId.$": "$.AccountId",
-        "TargetType": "AWS_ACCOUNT"
-      },
-      "Resource": "arn:aws:states:::aws-sdk:ssoadmin:createAccountAssignment",
-      "ResultPath": null
+      "Next": "CreateLogStream"
     },
     "CreateLogStream": {
       "Type": "Task",
@@ -133,21 +132,8 @@ resource "aws_sfn_state_machine" "main" {
     },
     "Wait": {
       "Type": "Wait",
-      "Next": "DeleteAccountAssignment",
-      "SecondsPath": "$.AccessTimeSeconds"
-    },
-    "DeleteAccountAssignment": {
-      "Type": "Task",
       "Next": "Success",
-      "Parameters": {
-        "InstanceArn.$": "$.InstancesResult.InstanceArn",
-        "PermissionSetArn.$": "$.PermissionSetArn",
-        "PrincipalId.$": "$.GetUserIdResult.UserId",
-        "PrincipalType": "USER",
-        "TargetId.$": "$.AccountId",
-        "TargetType": "AWS_ACCOUNT"
-      },
-      "Resource": "arn:aws:states:::aws-sdk:ssoadmin:deleteAccountAssignment"
+      "SecondsPath": "$.AccessTimeSeconds"
     },
     "Success": {
       "Type": "Succeed"
