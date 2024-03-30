@@ -26,7 +26,7 @@ def resolve_account_tag(tag):
         for t in resp['Tags']:
             print(t)
             if t == tag:
-                return {k:v for (k,v) if isinstance(v,str)}
+                return {k:v for (k,v) in a.items() if isinstance(v,str)}
     
     while next_token:
         resp = org.list_accounts(
@@ -45,7 +45,7 @@ def resolve_account_tag(tag):
             for t in resp['Tags']:
                 print(t)
                 if t == tag:
-                    return {k:v for (k,v) if isinstance(v,str)}
+                    return {k:v for (k,v) in a.items() if isinstance(v,str)}
     return {}
 
 
