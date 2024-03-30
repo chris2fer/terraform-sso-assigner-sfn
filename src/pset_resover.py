@@ -56,7 +56,7 @@ def resolve_pset_tag(inst, tag):
 
 def lambda_handler(event, context):
     inst = event['InstancesResult']['InstanceArn']
-    tag = {"Key":EXTERNAL_ID, "Value": event['tag_id']}
+    tag = event['tag']
     pset = resolve_pset_tag(inst, tag)
     # print(f'Searching Org Accounts for the {tag["Key"]} with value {tag["Value"]}')
     return pset

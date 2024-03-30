@@ -1,6 +1,4 @@
 
-import json
-
 import boto3
 
 ### BOTO Tools ###
@@ -56,4 +54,4 @@ def lambda_handler(event, context):
 
     account = {k:v for (k,v) in resolve_account_tag(tag).items() if isinstance(v, str)}
 
-    return json.dumps(account)
+    return account
