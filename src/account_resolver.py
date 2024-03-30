@@ -19,7 +19,7 @@ def resolve_account_tag(tag):
 
     for a in account_list:
         print(a)
-        print(f"Checking Account named {p['Name']}")
+        print(f"Checking Account named {a['Name']}")
         resp = org.list_tags_for_resource(
             ResourceId=a['Arn']
         )
