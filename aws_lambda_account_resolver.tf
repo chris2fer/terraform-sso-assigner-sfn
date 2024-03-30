@@ -26,7 +26,7 @@ data "archive_file" "account_resolver_lambda" {
 resource "aws_lambda_function" "account_resolver" {
   # If the file is not in the current working directory you will need to include a
   # path.module in the filename.
-  filename      = "account_resolver_payload.zip"
+  filename      = "./src/account_resolver_payload.zip"
   function_name = "SSO-Assigner-Account-Resolver"
   role          = aws_iam_role.account_resolver_lambda.arn
   handler       = "account_resolver.lambda_handler"
