@@ -20,14 +20,11 @@ def resolve_pset_tag(inst, tag):
     pset_list = resp['PermissionSets']
 
     for p in pset_list:
-        print(p)
-        # print(f"Checking Account named {p['Name']}")
         resp = sso.list_tags_for_resource(
             InstanceArn=inst,
             ResourceArn=p
         )
         for t in resp['Tags']:
-            print(t)
             if t == tag:
                 return p
     
@@ -41,9 +38,6 @@ def resolve_pset_tag(inst, tag):
         pset_list = resp['PermissionSets']
         
         for p in pset_list:
-            print(p)
-            
-            # print(f"Checking Account named {a['Name']}")
             resp = sso.list_tags_for_resource(
                 InstanceArn=inst,
                 ResourceArn=p)
@@ -57,8 +51,8 @@ def resolve_pset_tag(inst, tag):
 def lambda_handler(event, context):
     inst = event['InstancesResult']['InstanceArn']
     tag = event['pvf_tag']
+    print(f'Searching for Permission Set tagged with {tag["Key"]} with value {tag["Value"]}')
     pset = resolve_pset_tag(inst, tag)
-    # print(f'Searching Org Accounts for the {tag["Key"]} with value {tag["Value"]}')
     return pset
     # account = {k:v for (k,v) in resolve_account_tag(tag).items() if isinstance(v, str)}
 
