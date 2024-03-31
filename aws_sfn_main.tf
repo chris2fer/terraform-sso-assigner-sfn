@@ -1,9 +1,4 @@
 
-variable sfn_name {
-  type        = string
-  default     = "SSO-Group-Assigner"
-  description = "The Name of the main StepFunction"
-}
 
 resource "aws_sfn_state_machine" "main" {
   name      = var.sfn_name
@@ -156,7 +151,7 @@ resource "aws_sfn_state_machine" "main" {
             "Timestamp.$": "$.Logging.Timestamp"
           }
         ],
-        "LogGroupName": "/sso/automation/group-assigner/sfn",
+        "LogGroupName": "${var.cloudwatch_log_group_name}",
         "LogStreamName": "2024/03/30"
       },
       "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
