@@ -34,6 +34,8 @@ resource aws_iam_role iam_for_sfn {
             "organizations:List*",
             "organizations:Describe*",
             "lambda:InvokeFunction",
+            "logs:*",
+            "cloudwatch:*",
           ]
           Effect   = "Allow"
           Resource = "*"
