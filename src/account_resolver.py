@@ -1,4 +1,4 @@
-
+import json
 import boto3
 
 ### BOTO Tools ###
@@ -48,7 +48,7 @@ def resolve_account_tag(tag):
 
 
 def lambda_handler(event, context):
-    tag = event['pvfx_tag']
+    tag = json.loads(event['pvfx_tag'])
 
     print(f'Searching Org Accounts for the {tag["Key"]} with value {tag["Value"]}')
 

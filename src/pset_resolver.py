@@ -50,7 +50,7 @@ def resolve_pset_tag(inst, tag):
 
 def lambda_handler(event, context):
     inst = event['InstancesResult']['InstanceArn']
-    tag = event['pvf_tag']
+    tag = json.loads(event['pvf_tag'])
     print(f'Searching for Permission Set tagged with {tag["Key"]} with value {tag["Value"]}')
     pset = resolve_pset_tag(inst, tag)
     return pset
