@@ -39,7 +39,7 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    environment: production
+    environment: testing
 
     defaults:
       run:
